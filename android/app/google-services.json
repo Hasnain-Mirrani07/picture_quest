@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1007787215156",
+    "project_id": "picture-quest-b5a93",
+    "storage_bucket": "picture-quest-b5a93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007787215156:android:4f3bf3362c9e5120e6bd61",
+        "android_client_info": {
+          "package_name": "com.example.picture_quest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlb1F0-tB6Qu816gREXosevUwAhkEJYZI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
