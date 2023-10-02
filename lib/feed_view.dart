@@ -19,13 +19,20 @@ class FeedView extends StatefulWidget {
 
 class _FeedViewState extends State<FeedView> {
   FeedLoader fl = FeedLoader();
+  Post? preLoadedPost;
 
   void _activateCamera() async {
     File? imagePicked;
     try {
+      final location = await fl.getLocation();
+      final displayName = await fl.getDisplayName();
       final image = await ImagePicker().pickImage(source: ImageSource.camera);
       if (image == null) return;
       final imageTemp = File(image.path);
+      preLoadedPost = Post(
+          imageFile: imageTemp,
+          location: location ?? '',
+          displayName: displayName);
       setState(() => imagePicked = imageTemp);
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -45,6 +52,14 @@ class _FeedViewState extends State<FeedView> {
             ListView(
               children: <Widget>[
                 const SizedBox(height: 60),
+                //If preLoadedPost is not null, display it as a PicturePost
+                preLoadedPost != null
+                    ? PicturePost(
+                        locationText: preLoadedPost?.location,
+                        displayName: preLoadedPost?.displayName,
+                        image: preLoadedPost?.imageFile,
+                      )
+                    : Container(),
                 FutureBuilder(
                     future: fl.fetchTodayPosts(),
                     builder: (context, snapshot) {
@@ -55,18 +70,8 @@ class _FeedViewState extends State<FeedView> {
                             displayName: post.displayName,
                             imageURL: post.image,
                           ),
-                        const SizedBox(height: 15)
                       ]);
                     }),
-                // PicturePost(),
-                // const SizedBox(
-                //   height: 15,
-                // ),
-                // PicturePost(),
-                // const SizedBox(
-                //   height: 15,
-                // ),
-                // PicturePost(),
                 const SizedBox(height: 100)
               ],
             ),
@@ -109,7 +114,9 @@ class PicturePost extends StatefulWidget {
   final String? locationText;
   final String? displayName;
   final String? imageURL;
-  PicturePost({this.locationText, this.displayName, this.imageURL});
+  final File? image;
+  const PicturePost(
+      {this.locationText, this.displayName, this.imageURL, this.image});
 
   @override
   _PicturePostState createState() => _PicturePostState();
@@ -123,29 +130,37 @@ class _PicturePostState extends State<PicturePost> {
     return Column(
       children: [
         Container(
-            decoration:
-                BoxDecoration(border: Border.all(color: foregroundColor)),
-            child: Image.network(widget.imageURL ?? '')),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: foregroundColor, width: 10),
+                left: BorderSide(color: foregroundColor, width: 10),
+                right: BorderSide(color: foregroundColor, width: 10),
+              ),
+            ),
+            child: widget.image == null
+                ? Image.network(widget.imageURL ?? '')
+                : Image.file(widget.image ?? File('black.jpg'))),
         Container(
-            height: 25,
-            decoration:
-                BoxDecoration(border: Border.all(color: foregroundColor)),
+            color: foregroundColor,
+            height: 40,
+            //decoration:
+            //    BoxDecoration(border: Border.all(color: foregroundColor)),
             child: Row(
               children: <Widget>[
-                const SizedBox(width: 16),
-                const Icon(Icons.place, color: foregroundColor),
+                const Spacer(),
+                const Icon(Icons.place, color: buttonColor),
                 Text(widget.locationText ?? '',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: foregroundColor)),
+                        fontSize: 20,
+                        color: buttonColor)),
                 const Spacer(),
                 const Spacer(),
-                Text(widget.displayName ?? '',
+                Text('@${widget.displayName ?? ''}',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: foregroundColor)),
+                        fontSize: 20,
+                        color: buttonColor)),
                 const Spacer(),
                 GestureDetector(
                     onTap: () {
@@ -164,20 +179,9 @@ class _PicturePostState extends State<PicturePost> {
                                 Icons.star_border,
                                 color: foregroundColor,
                               ))),
-                // IconButton(
-                //     color: foregroundColor,
-                //     icon: Padding(
-                //         padding: EdgeInsets.zero,
-                //         child: pressed == true
-                //             ? const Icon(Icons.star)
-                //             : const Icon(Icons.star_border)),
-                //     onPressed: () {
-                //       setState(() {
-                //         pressed = !pressed;
-                //       });
-                //     })
               ],
-            ))
+            )),
+        const SizedBox(height: 15)
       ],
     );
   }

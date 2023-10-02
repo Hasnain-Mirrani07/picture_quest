@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:picture_quest/services/feed_loader.dart';
 
 const buttonColor = Colors.black;
 const foregroundColor = Colors.white;
@@ -89,7 +90,7 @@ class _ImageReviewerState extends State<ImageReviewer> {
               onPressed: () => {
                 if (widget.image != null)
                   {_uploadPost(widget.image!, showLocation)},
-                Navigator.of(context).pop()
+                Navigator.pop(context, widget.image)
               },
               style: ElevatedButton.styleFrom(
                   foregroundColor: buttonColor,
@@ -123,6 +124,27 @@ class _ImageReviewerState extends State<ImageReviewer> {
     } catch (e) {
       return null;
     }
+  }
+
+  //function that returns user display name
+  Future<String> _getDisplayName() async {
+    var db = FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+
+      db
+          .collection('users')
+          .doc(userId)
+          .get()
+          .then((DocumentSnapshot userDoc) async {
+        final data = userDoc.data() as Map<String, dynamic>?;
+        var displayName = data?['display_name'];
+        return displayName;
+      });
+    }
+    return '';
   }
 
   void _uploadPost(File postImage, bool location) async {
