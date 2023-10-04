@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:picture_quest/services/feed_loader.dart';
 
 const buttonColor = Colors.black;
 const foregroundColor = Colors.white;
@@ -14,7 +13,7 @@ const foregroundColor = Colors.white;
 class ImageReviewer extends StatefulWidget {
   final File? image;
 
-  ImageReviewer({Key? key, this.image}) : super(key: key);
+  const ImageReviewer({Key? key, this.image}) : super(key: key);
 
   @override
   State<ImageReviewer> createState() => _ImageReviewerState();
@@ -197,7 +196,7 @@ class _ImageReviewerState extends State<ImageReviewer> {
       await imageRef.putFile(imageToUpload);
       return imageKey;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return 'ERROR';
     }
   }

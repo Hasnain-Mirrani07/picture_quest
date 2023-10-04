@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:typed_data';
 
 class FeedLoader {
   FeedLoader();
 
-  Future<List<Post>> fetchTodayPosts() async {
+  Stream<List<Post>> fetchTodayPosts() async* {
     //TOUTC
     var today = DateTime.now().toUtc().toString();
     var todayID = today.substring(0, 11);
@@ -28,23 +28,30 @@ class FeedLoader {
       List<Post> postsReceived = [];
       for (var doc in docs) {
         var docInfo = doc as Map<String, dynamic>?;
-        var loadedImage = await alternateLoad(docInfo?['image_id']);
+        var imageData = await getImage(docInfo?['image_id']);
         Post post = Post(
-            image: loadedImage,
+            imageBytes: imageData,
             location: docInfo?['location'],
             displayName: docInfo?['display_name']);
         postsReceived.add(post);
+        yield List.of(postsReceived);
       }
-      return postsReceived;
+      // return postsReceived;
     }
 
-    return [];
+    // return [];
   }
 
-  Future<String> alternateLoad(String id) async {
-    final ref = FirebaseStorage.instance.ref().child(id);
-    var url = ref.getDownloadURL();
-    return url;
+//Function gets image from Firebase Storage
+  Future<Uint8List?> getImage(String imageId) async {
+    final ref = FirebaseStorage.instance.ref().child(imageId);
+    try {
+      const maxSize = 7024 * 1024;
+      final Uint8List? data = await ref.getData(maxSize);
+      return data;
+    } on FirebaseException catch (e) {
+      return null;
+    }
   }
 
   Future<String?> getLocation() async {
@@ -77,7 +84,7 @@ class FeedLoader {
     if (user != null) {
       String userId = user.uid;
 
-      db
+      return db
           .collection('users')
           .doc(userId)
           .get()
@@ -96,10 +103,12 @@ class Post {
   String location;
   String displayName;
   File? imageFile;
+  Uint8List? imageBytes;
 
   Post(
       {this.image,
       required this.location,
       required this.displayName,
-      this.imageFile});
+      this.imageFile,
+      this.imageBytes});
 }

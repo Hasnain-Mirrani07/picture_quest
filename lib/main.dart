@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     if (isLoggedIn) {
       return MaterialApp(
         theme: ThemeData(
-          textTheme: GoogleFonts.heeboTextTheme(Theme.of(context).textTheme),
+          textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
           scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
           useMaterial3: true,
