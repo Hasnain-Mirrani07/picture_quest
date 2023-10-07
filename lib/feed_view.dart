@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:picture_quest/account_page.dart';
 import 'package:picture_quest/image_review.dart';
 import 'package:picture_quest/services/feed_loader.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,9 +42,9 @@ class _FeedViewState extends State<FeedView> {
     }
   }
 
-  void _settingsNavigate() {
+  void _accountNavigate() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => SettingsView()),
+      MaterialPageRoute(builder: (context) => AccountView()),
     );
   }
 
@@ -64,7 +65,7 @@ class _FeedViewState extends State<FeedView> {
               const Spacer(),
               const Spacer(),
               IconButton(
-                  onPressed: _settingsNavigate,
+                  onPressed: _accountNavigate,
                   icon: const Icon(
                     Icons.person,
                     color: buttonColor,
