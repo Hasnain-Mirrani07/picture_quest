@@ -88,7 +88,12 @@ class _ImageReviewerState extends State<ImageReviewer> {
             ElevatedButton(
               onPressed: () => {
                 if (widget.image != null)
-                  {_uploadPost(widget.image!, showLocation)},
+                  {
+                    if (isPublic)
+                      {_uploadPost(widget.image!, showLocation)}
+                    else
+                      {_uploadPrivatePost(widget.image!, showLocation)}
+                  },
                 Navigator.pop(context, widget.image)
               },
               style: ElevatedButton.styleFrom(
@@ -178,11 +183,60 @@ class _ImageReviewerState extends State<ImageReviewer> {
           "display_name": displayName
         };
 
-        db
+        var postID = await db
             .collection('public_posts')
             .doc(todayID)
             .collection('posts')
             .add(post);
+
+        db.collection('users').doc(userId).update({
+          'posts': FieldValue.arrayUnion([postID.id])
+        });
+      });
+    }
+  }
+
+  void _uploadPrivatePost(File postImage, bool location) async {
+    var locationString = '';
+    if (location) {
+      var locationRequest = await _getLocation();
+      if (locationRequest != null) {
+        locationString = locationRequest;
+      }
+    }
+
+    var db = FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+
+      db
+          .collection('users')
+          .doc(userId)
+          .get()
+          .then((DocumentSnapshot userDoc) async {
+        final data = userDoc.data() as Map<String, dynamic>?;
+        var displayName = data?['display_name'];
+        var today = DateTime.now().toUtc().toString();
+        var todayID = today.substring(0, 11);
+        var imageID = await _uploadImage(postImage);
+        final post = {
+          "image_id": imageID,
+          "location": locationString,
+          "user_id": userId,
+          "display_name": displayName
+        };
+
+        var postID = await db
+            .collection('private_posts')
+            .doc(userId)
+            .collection(todayID)
+            .add(post);
+
+        db.collection('users').doc(userId).update({
+          'posts': FieldValue.arrayUnion([postID.id])
+        });
       });
     }
   }

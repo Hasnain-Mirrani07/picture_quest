@@ -46,6 +46,7 @@ dependencies:
   cloud_firestore: ^4.9.2
   geolocator: ^10.1.0
   geocoding: ^2.1.0
+  profanity_filter: ^2.0.0
 
 dev_dependencies:
   flutter_test:

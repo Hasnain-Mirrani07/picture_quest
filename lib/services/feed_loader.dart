@@ -24,15 +24,32 @@ class FeedLoader {
           .collection('posts')
           .get();
 
-      var docs = qs.docs.map((doc) => doc.data()).toList();
+      // var docs = qs.docs.map((doc) => doc.data()).toList();
       List<Post> postsReceived = [];
-      for (var doc in docs) {
-        var docInfo = doc as Map<String, dynamic>?;
+      for (var doc in qs.docs) {
+        var docId = doc.id;
+
+        var docInfo = doc.data() as Map<String, dynamic>?;
         var imageData = await getImage(docInfo?['image_id']);
+        //check if the user id is in the likes array and if so set liked to true
+        var liked = false;
+        var likes = docInfo?['likes'];
+        if (likes != null) {
+          for (var like in likes) {
+            if (like == user.uid) {
+              liked = true;
+            }
+          }
+        }
+        //get the document name
+
         Post post = Post(
-            imageBytes: imageData,
-            location: docInfo?['location'],
-            displayName: docInfo?['display_name']);
+          imageBytes: imageData,
+          location: docInfo?['location'],
+          displayName: docInfo?['display_name'],
+          liked: liked,
+          postId: docId,
+        );
         postsReceived.add(post);
         yield List.of(postsReceived);
       }
@@ -96,6 +113,38 @@ class FeedLoader {
     }
     return '';
   }
+
+  void addLike(String postId, bool alreadyLiked) {
+    var db = FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      //For now just going to directly add stars to each post
+
+      var today = DateTime.now().toUtc().toString();
+      var todayID = today.substring(0, 11);
+      if (alreadyLiked) {
+        db
+            .collection('public_posts')
+            .doc(todayID)
+            .collection('posts')
+            .doc(postId)
+            .update({
+          'likes': FieldValue.arrayRemove([userId])
+        });
+        return;
+      }
+      db
+          .collection('public_posts')
+          .doc(todayID)
+          .collection('posts')
+          .doc(postId)
+          .update({
+        'likes': FieldValue.arrayUnion([userId])
+      });
+    }
+  }
 }
 
 class Post {
@@ -104,11 +153,15 @@ class Post {
   String displayName;
   File? imageFile;
   Uint8List? imageBytes;
+  bool liked = false;
+  String? postId;
 
   Post(
       {this.image,
       required this.location,
       required this.displayName,
       this.imageFile,
-      this.imageBytes});
+      this.imageBytes,
+      this.liked = false,
+      this.postId});
 }

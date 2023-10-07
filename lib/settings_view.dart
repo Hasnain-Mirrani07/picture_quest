@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+
+import 'package:picture_quest/login_page.dart';
 
 const buttonColor = Colors.black;
 const foregroundColor = Colors.white;
@@ -12,11 +15,26 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   bool saveToDevice = true;
 
+  void _handleSignOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => SignUpScreen()),
+          (Route<dynamic> route) => false);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Settings'),
+          toolbarHeight: 40,
+          title: const Text(
+            'Settings',
+            style: TextStyle(fontSize: 32),
+          ),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -58,9 +76,7 @@ class _SettingsViewState extends State<SettingsView> {
             const Spacer(),
             //Red text button that says 'Sign Out'
             TextButton(
-              onPressed: () {
-                //Sign out
-              },
+              onPressed: _handleSignOut,
               child: const Text(
                 'Sign Out',
                 style: TextStyle(color: Colors.red, fontSize: 22),

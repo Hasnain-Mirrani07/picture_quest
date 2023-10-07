@@ -56,10 +56,12 @@ class _FeedViewState extends State<FeedView> {
             children: [
               const Spacer(),
               const Spacer(),
+              const Spacer(),
               const Text(
                 'FOCUS',
                 style: TextStyle(fontSize: 32),
               ),
+              const Spacer(),
               const Spacer(),
               IconButton(
                   onPressed: _settingsNavigate,
@@ -110,6 +112,8 @@ class _FeedViewState extends State<FeedView> {
                                         locationText: post.location,
                                         displayName: post.displayName,
                                         imageBytes: post.imageBytes,
+                                        isLiked: post.liked,
+                                        postId: post.postId,
                                       ),
                                     )
                                   : Container(),
@@ -160,12 +164,21 @@ class _FeedViewState extends State<FeedView> {
 }
 
 class PicturePost extends StatefulWidget {
+  final feedLoader = FeedLoader();
+
   final String? locationText;
   final String? displayName;
   final File? image;
   final Uint8List? imageBytes;
-  const PicturePost(
-      {this.locationText, this.displayName, this.image, this.imageBytes});
+  final bool? isLiked;
+  final String? postId;
+  PicturePost(
+      {this.locationText,
+      this.displayName,
+      this.image,
+      this.imageBytes,
+      this.isLiked,
+      this.postId});
 
   @override
   _PicturePostState createState() => _PicturePostState();
@@ -173,6 +186,12 @@ class PicturePost extends StatefulWidget {
 
 class _PicturePostState extends State<PicturePost> {
   bool pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    pressed = widget.isLiked ?? false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -217,6 +236,8 @@ class _PicturePostState extends State<PicturePost> {
                     onTap: () {
                       setState(() {
                         pressed = !pressed;
+                        widget.feedLoader.addLike(
+                            widget.postId ?? '', widget.isLiked ?? false);
                       });
                     },
                     child: Padding(
