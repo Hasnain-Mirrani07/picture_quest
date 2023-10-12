@@ -59,7 +59,7 @@ class _FeedViewState extends State<FeedView> {
               const Spacer(),
               const Spacer(),
               const Text(
-                'FOCUS',
+                'Picture Quest',
                 style: TextStyle(fontSize: 32),
               ),
               const Spacer(),
@@ -123,26 +123,6 @@ class _FeedViewState extends State<FeedView> {
                     const SizedBox(height: 100)
                   ],
                 )),
-            // Column(children: [
-            //   const SizedBox(height: 40),
-            //   ElevatedButton(
-            //       style: ElevatedButton.styleFrom(
-            //           foregroundColor: foregroundColor,
-            //           backgroundColor: buttonColor),
-            //       onPressed: () => {},
-            //       child: const Row(children: [
-            //         Spacer(),
-            //         Text(
-            //           'Water',
-            //           style: TextStyle(
-            //             fontSize: 40,
-            //           ),
-            //           textAlign: TextAlign.center,
-            //         ),
-            //         Spacer(),
-            //         Icon(Icons.expand_more)
-            //       ])),
-            // ])
           ],
         ),
       ),

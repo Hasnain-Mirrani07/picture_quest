@@ -17,13 +17,13 @@ class AccountView extends StatefulWidget {
 }
 
 class _AccountViewState extends State<AccountView> {
-  @override
   void _settingsNavigate() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => SettingsView()),
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

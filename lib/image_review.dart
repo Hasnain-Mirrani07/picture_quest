@@ -190,7 +190,9 @@ class _ImageReviewerState extends State<ImageReviewer> {
             .add(post);
 
         db.collection('users').doc(userId).update({
-          'posts': {postID.id: imageID}
+          'posts': FieldValue.arrayUnion([
+            {postID.id: imageID}
+          ])
         });
       });
     }
@@ -235,7 +237,9 @@ class _ImageReviewerState extends State<ImageReviewer> {
             .add(post);
 
         db.collection('users').doc(userId).update({
-          'posts': {'PRIVATE${postID.id}': imageID}
+          'posts': FieldValue.arrayUnion([
+            {'PRIVATE${postID.id}': imageID}
+          ])
         });
       });
     }
