@@ -16,11 +16,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    bool isLoggedIn = FirebaseAuth.instance.currentUser != null
-        ? true
-        : false; // check user logged in or not
+    bool isLoggedIn = FirebaseAuth.instance.currentUser != null ? true : false;
+    // check user logged in or not
     if (isLoggedIn) {
       return MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
       );
     }
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           textTheme: GoogleFonts.heeboTextTheme(Theme.of(context).textTheme),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),

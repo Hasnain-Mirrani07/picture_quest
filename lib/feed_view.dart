@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 import 'package:picture_quest/settings_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const buttonColor = Colors.black;
 const foregroundColor = Colors.white;
@@ -28,7 +29,7 @@ class _FeedViewState extends State<FeedView> {
       final image = await ImagePicker().pickImage(source: ImageSource.camera);
       if (image == null) return;
       final imageTemp = File(image.path);
-      preLoadedPost = Post(
+      preLoadedPost = await Post(
           imageFile: imageTemp,
           location: location ?? '',
           displayName: displayName);
@@ -46,6 +47,21 @@ class _FeedViewState extends State<FeedView> {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => AccountView()),
     );
+  }
+
+  int postLength = 0;
+  Future<void> getLength() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    postLength = await prefs.getInt("postLength") ?? 0;
+  }
+
+  @override
+  void initState() {
+    fl.fetchTodayPosts();
+    getLength();
+    // TODO: implement initState
+    super.initState();
   }
 
   @override
@@ -79,6 +95,9 @@ class _FeedViewState extends State<FeedView> {
                 color: buttonColor,
                 displacement: 100,
                 onRefresh: _refresh,
+                notificationPredicate: (ScrollNotification notification) {
+                  return notification.depth == 0;
+                },
                 child: ListView(
                   children: <Widget>[
                     const SizedBox(height: 60),
@@ -138,9 +157,16 @@ class _FeedViewState extends State<FeedView> {
   }
 
   Future<void> _refresh() async {
-    fl.fetchTodayPosts();
-    preLoadedPost = null;
-    setState(() {});
+    await fl.checkNewPostLength();
+    print("lllll compaired   ----- ${fl.newLength}   -- ${fl.postLength} ");
+
+    if (fl.newLength > postLength) {
+      fl.fetchTodayPosts();
+      preLoadedPost = null;
+      setState(() {});
+    } else {
+      print("lllll compaired   ----- ${fl.newLength}   -- ${fl.postLength} ");
+    }
   }
 }
 

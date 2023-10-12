@@ -6,15 +6,18 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:typed_data';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class FeedLoader {
   FeedLoader();
-
-  Stream<List<Post>> fetchTodayPosts() async* {
+  int postLength = 0;
+  int newLength = 0;
+  Future<int> checkNewPostLength() async {
     //TOUTC
     var today = DateTime.now().toUtc().toString();
     var todayID = today.substring(0, 11);
 
-    var db = FirebaseFirestore.instance;
+    var db = await FirebaseFirestore.instance;
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user = auth.currentUser;
     if (user != null) {
@@ -23,7 +26,31 @@ class FeedLoader {
           .doc(todayID)
           .collection('posts')
           .get();
+      newLength = qs.docs.length;
+      print("lllllll  post legth increase ----------- $newLength");
+    }
+    return newLength;
+  }
 
+  Stream<List<Post>> fetchTodayPosts() async* {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    //TOUTC
+    var today = DateTime.now().toUtc().toString();
+    var todayID = today.substring(0, 11);
+
+    var db = await FirebaseFirestore.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    if (user != null) {
+      QuerySnapshot qs = await db
+          .collection('public_posts')
+          .doc(todayID)
+          .collection('posts')
+          .get();
+      postLength = qs.docs.length;
+      print("lllllll ----------- $postLength");
+      await prefs.setInt("postLength", postLength);
       // var docs = qs.docs.map((doc) => doc.data()).toList();
       List<Post> postsReceived = [];
       for (var doc in qs.docs) {
@@ -43,7 +70,7 @@ class FeedLoader {
         }
         //get the document name
 
-        Post post = Post(
+        Post post = await Post(
           imageBytes: imageData,
           location: docInfo?['location'],
           displayName: docInfo?['display_name'],
